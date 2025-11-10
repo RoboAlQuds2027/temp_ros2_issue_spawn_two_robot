@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+
+<!-- robot_arm.xacro -->
+<robot name="robot_arm" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="robot_arm_macros.xacro"/>
+
+  <link name="world"/>
+
+  <joint name="world_base_link" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Links using macros and mass param -->
+  <xacro:link_cylinder name="base_link" xyz="0 0 0.025" rpy="0 0 0" radius="0.1" length="0.05" mass="1.0"/>
+  <xacro:link_cylinder name="link1" xyz="0 0 0.132" rpy="0 0 0" radius="0.05" length="0.264" mass="0.6"/>
+  <xacro:link_cylinder name="link2" xyz="0 0 0.425" rpy="0 0 0" radius="0.05" length="0.850" mass="0.7"/>
+  <!-- <xacro:link_cylinder name="link3" xyz="0 0 0.340" rpy="0 0 0" radius="0.05" length="0.680" mass="0.8"/>
+  <xacro:link_cylinder name="link4" xyz="0 0 0.065" rpy="0 0 0" radius="0.05" length="0.130" mass="0.5"/>
+  <xacro:link_cylinder name="link5" xyz="0 0 0" rpy="0 0 0" radius="0.05" length="0.170" mass="0.3"/>
+  <xacro:link_box name="gripper_base" xyz="0 0 0.0125" rpy="0 0 0" w="0.03" h="0.15" d="0.03" mass="0.2"/>
+  <xacro:link_box name="gripper_right" xyz="0 0 0.05" rpy="0 0 0" w="0.01" h="0.01" d="0.10" mass="0.05"/>
+  <xacro:link_box name="gripper_left" xyz="0 0 0.05" rpy="0 0 0" w="0.01" h="0.01" d="0.10" mass="0.05"/> -->
+
+    <!-- For every controlled joint -->
+    <!-- <xacro:transmission_effort name="trans_base_link_link1" joint_name="base_link_link1" actuator_name="motor_base_link_link1"/>
+    <xacro:transmission_effort name="trans_link1_link2" joint_name="link1_link2" actuator_name="motor_link1_link2"/>
+    <xacro:transmission_effort name="trans_link2_link3" joint_name="link2_link3" actuator_name="motor_link2_link3"/>
+    <xacro:transmission_effort name="trans_link3_link4" joint_name="link3_link4" actuator_name="motor_link3_link4"/>
+    <xacro:transmission_effort name="trans_link4_link5" joint_name="link4_link5" actuator_name="motor_link4_link5"/>
+    <xacro:transmission_effort name="trans_link5_gripper_base" joint_name="link5_gripper_base" actuator_name="motor_link5_gripper_base"/> -->
+
+    <!-- For the gripper -->
+    <!-- <xacro:transmission_effort name="trans_gripper_base_gripper_right" joint_name="gripper_base_gripper_right" actuator_name="motor_gripper_base_gripper_right"/>
+    <xacro:transmission_effort name="trans_gripper_base_gripper_left" joint_name="gripper_base_gripper_left" actuator_name="motor_gripper_base_gripper_left"/> -->
+
+
+  <!-- Joints using macros -->
+  <xacro:joint name="base_link_link1" type="revolute" parent="base_link" child="link1" axis="0 0 1"
+      lower="-3.14159" upper="3.14159" velocity="0.5" effort="1000.0"
+      xyz="0 0 0.05" rpy="0 0 0"/>
+  <xacro:joint name="link1_link2" type="revolute" parent="link1" child="link2" axis="1 0 0"
+      lower="-2.5" upper="2.5" velocity="0.5" effort="1000.0"
+      xyz="0.1 0 0.264" rpy="0 0 0"/>
+  <!-- <xacro:joint name="link2_link3" type="revolute" parent="link2" child="link3" axis="1 0 0"
+      lower="-3.14" upper="3.14" velocity="0.5" effort="1000.0"
+      xyz="-0.1 0 0.850" rpy="0 0 0"/>
+  <xacro:joint name="link3_link4" type="revolute" parent="link3" child="link4" axis="1 0 0"
+      lower="-3.14" upper="3.14" velocity="0.5" effort="1000.0"
+      xyz="0.1 0.0 0.680" rpy="0.0 0.0 0.0"/>
+  <xacro:joint name="link4_link5" type="revolute" parent="link4" child="link5" axis="0 1 0"
+      lower="-3.14" upper="3.14" velocity="0.5" effort="1000.0"
+      xyz="0 0 0.180" rpy="1.570 0.0 0.0"/>
+  <xacro:joint name="link5_gripper_base" type="revolute" parent="link5" child="gripper_base" axis="0 0 1"
+      lower="-3.14" upper="3.14" velocity="0.5" effort="1000.0"
+      xyz="0 0 0.085" rpy="0 0 1.57"/>
+  <xacro:joint name="gripper_base_gripper_right" type="prismatic" parent="gripper_base" child="gripper_right" axis="0 1 0"
+      lower="0.0" upper="0.055" velocity="0.5" effort="1000.0"
+      xyz="0 -0.065 0.03" rpy="0 0 0"/>
+  <xacro:joint name="gripper_base_gripper_left" type="prismatic" parent="gripper_base" child="gripper_left" axis="0 -1 0"
+      lower="0.0" upper="0.055" velocity="0.5" effort="1000.0"
+      xyz="0 0.065 0.03" rpy="0 0 0"/> -->
+
+
+  <!-- Modern ros2_control block (NO <gazebo>!) -->
+  <ros2_control name="RobotController" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      <!-- <param name="position_proportional_gain">1.0</param>
+      <param name="position_integral_gain">0.5</param>
+      <param name="position_derivative_gain">1.0</param> -->
+    </hardware>
+
+    <!-- Repeat for all controlled joints -->
+    <joint name="base_link_link1">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="link1_link2">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <!-- <joint name="link2_link3">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+    </joint>
+
+    <joint name="link3_link4">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+    </joint>
+
+    <joint name="link4_link5">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+    </joint>
+
+    <joint name="link5_gripper_base">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+    </joint>
+
+    <joint name="gripper_base_gripper_right">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+    </joint>
+
+    <joint name="gripper_base_gripper_left">
+      <command_interface name="effort"/>
+      <state_interface name="position"/>
+    </joint> -->
+
+  </ros2_control>
+
+<!-- In your robot_arm.urdf.xacro, add back this block -->
+  <gazebo>
+    <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system.so">
+      <parameters>$(find robot_arm)/config/controller.yaml</parameters>
+        <controller_manager_name>controller_manager</controller_manager_name>
+    </plugin>
+  </gazebo>
+
+
+</robot>
+
