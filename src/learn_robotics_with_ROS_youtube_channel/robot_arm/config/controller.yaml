@@ -1,9 +1,10 @@
 controller_manager:
   ros__parameters:
     update_rate: 100
+    use_sim_time: true
 
     joint_state_broadcaster:
-      type: "joint_state_broadcaster/JointStateBroadcaster"
+      type: joint_state_broadcaster/JointStateBroadcaster
 
     joint_trajectory_controller:
       type: joint_trajectory_controller/JointTrajectoryController
@@ -13,18 +14,31 @@ joint_state_broadcaster:
     joints:
       - base_link_link1
       - link1_link2
+      - link2_link3
+      - link3_link4
+      - link4_link5
+      - gripper_connector_joint
+      - gripper_right_joint
+      - gripper_left_joint
+
 
 joint_trajectory_controller:
   ros__parameters:
     joints:
-        - base_link_link1
-        - link1_link2
+      - base_link_link1
+      - link1_link2
+      - link2_link3
+      - link3_link4
+      - link4_link5
+      - gripper_connector_joint
+      - gripper_right_joint
+      - gripper_left_joint
+
     command_interfaces:
       - position
     state_interfaces:
       - position
       - velocity
-
-
-
-
+    allow_partial_joints_goal: false
+    open_loop_control: false
+    action_monitor_rate: 20.0

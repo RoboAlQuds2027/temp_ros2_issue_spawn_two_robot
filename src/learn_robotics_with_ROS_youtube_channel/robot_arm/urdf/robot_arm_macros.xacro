@@ -1,11 +1,21 @@
 <?xml version="1.0"?>
-
 <!-- robot_arm_macros.xacro -->
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
 
-  <!-- Macro for cylinder link -->
-  <xacro:macro name="link_cylinder" params="name xyz rpy radius length mass">
+  <!-- ====== CYLINDER LINK MACRO ====== -->
+  <xacro:macro name="link_cylinder" params="name xyz rpy radius length mass ixx iyy izz">
     <link name="${name}">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia 
+          ixx="${ixx}"
+          ixy="0.0" 
+          ixz="0.0" 
+          iyy="${iyy}"
+          iyz="0.0" 
+          izz="${izz}"/>
+      </inertial>
       <visual>
         <geometry>
           <cylinder radius="${radius}" length="${length}"/>
@@ -18,78 +28,50 @@
         </geometry>
         <origin xyz="${xyz}" rpy="${rpy}"/>
       </collision>
-      <inertial>
-        <mass value="${mass}"/>
-        <origin xyz="${xyz}" rpy="${rpy}"/>
-        <inertia 
-        ixx="${(1/12.0)*mass*(3*radius*radius + length*length)}"
-        iyy="${(1/12.0)*mass*(3*radius*radius + length*length)}"
-        izz="${0.5*mass*radius*radius}"
-        ixy="0.0" ixz="0.0" iyz="0.0"/>
-      </inertial>
     </link>
   </xacro:macro>
 
-  <!-- Macro for box link -->
-  <xacro:macro name="link_box" params="name xyz rpy w h d mass">
+  <!-- ====== BOX LINK MACRO ====== -->
+  <xacro:macro name="cobot_link_box" params="name origin_xyz origin_rpy size mass ixx ixy ixz iyy iyz izz">
     <link name="${name}">
+      <inertial>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia 
+          ixx="${ixx}" 
+          ixy="${ixy}" 
+          ixz="${ixz}" 
+          iyy="${iyy}" 
+          iyz="${iyz}" 
+          izz="${izz}"/>
+      </inertial>
       <visual>
         <geometry>
-          <box size="${w} ${h} ${d}"/>
+          <box size="${size}"/>
         </geometry>
-        <origin xyz="${xyz}" rpy="${rpy}"/>
+        <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
       </visual>
       <collision>
         <geometry>
-          <box size="${w} ${h} ${d}"/>
+          <box size="${size}"/>
         </geometry>
-        <origin xyz="${xyz}" rpy="${rpy}"/>
+        <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
       </collision>
-      <inertial>
-        <mass value="${mass}"/>
-        <origin xyz="${xyz}" rpy="${rpy}"/>
-        <inertia 
-          ixx="${(1/12.0)*mass*(h*h + d*d)}"
-          iyy="${(1/12.0)*mass*(w*w + d*d)}"
-          izz="${(1/12.0)*mass*(w*w + h*h)}"
-          ixy="0.0" ixz="0.0" iyz="0.0"/>
-      </inertial>
     </link>
   </xacro:macro>
 
-
-  <!-- Macro for revolute or prismatic joint -->
-  <xacro:macro name="joint" params="name type parent child axis lower upper velocity effort xyz rpy">
+  <!-- ====== UNIFIED JOINT MACRO ====== -->
+  <xacro:macro name="cobot_joint" params="name type parent child axis limit_l limit_u limit_v limit_e origin_xyz origin_rpy">
     <joint name="${name}" type="${type}">
       <parent link="${parent}"/>
       <child link="${child}"/>
-      <axis xyz="${axis}"/>
-      <limit lower="${lower}" upper="${upper}" velocity="${velocity}" effort="${effort}"/>
-      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <!-- Only add axis and limit for non-fixed joints -->
+      <xacro:if value="${type != 'fixed'}">
+        <axis xyz="${axis}"/>
+        <limit lower="${limit_l}" upper="${limit_u}" velocity="${limit_v}" effort="${limit_e}"/>
+      </xacro:if>
+      <origin xyz="${origin_xyz}" rpy="${origin_rpy}"/>
     </joint>
   </xacro:macro>
-
-  <!-- Macro for fixed joint -->
-  <xacro:macro name="fixed_joint" params="name parent child xyz rpy">
-    <joint name="${name}" type="fixed">
-      <parent link="${parent}"/>
-      <child link="${child}"/>
-      <origin xyz="${xyz}" rpy="${rpy}"/>
-    </joint>
-  </xacro:macro>
-
-  <!-- Macro for effort transmission -->
-  <!-- <xacro:macro name="transmission_effort" params="name joint_name actuator_name">
-    <transmission name="${name}">
-      <type>transmission_interface/SimpleTransmission</type>
-      <joint name="${joint_name}">
-        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
-      </joint>
-      <actuator name="${actuator_name}">
-        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
-        <mechanicalReduction>1</mechanicalReduction>
-      </actuator>
-    </transmission>
-  </xacro:macro> -->
 
 </robot>
