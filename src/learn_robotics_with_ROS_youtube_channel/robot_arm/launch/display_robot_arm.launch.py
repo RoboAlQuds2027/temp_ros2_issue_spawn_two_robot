@@ -20,6 +20,11 @@ def generate_launch_description():
     robot_description_config = xacro.process_file(xacro_file)
     robot_description = robot_description_config.toxml()
 
+    # Process cube URDF
+    cube_xacro = os.path.join(pkg_path, 'urdf', 'cube_pick_place.urdf.xacro')
+    cube_config = xacro.process_file(cube_xacro)
+    cube_description = cube_config.toxml()
+
     # RViz config
     rviz_config_file = os.path.join(pkg_path, 'config', 'rviz2_config.rviz')
 
@@ -48,9 +53,6 @@ def generate_launch_description():
                                                                                             # shutdown all other nodes in your launch file when Gazebo exits. 
    
 
-
-
-
     # Spawn robot (NEW - 'create' instead of 'spawn_entity.py')
     spawn_entity = Node(
         package='ros_gz_sim',
@@ -65,13 +67,37 @@ def generate_launch_description():
         output='screen'
     )
 
+    # Spawn cube in Gazebo
+    # spawn_cube = Node(
+    #     package='ros_gz_sim',
+    #     executable='create',
+    #     arguments=[
+    #         '-topic', 'cube_description',
+    #         '-name', 'grasp_cube',
+    #         '-x', '1.0',
+    #         '-y', '1.0',
+    #         '-z', '0.025'  # Half of 0.05m so bottom touches ground
+    #     ],
+    #     output='screen'
+    # )    
+
     # Nodes
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
+        namespace='robot_arm',   # Namespace added here
         output='screen',
         parameters=[params]
     )
+
+    # Publish cube description
+    cube_publisher = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        namespace='cube',    # Namespace added here
+        parameters=[{'robot_description': cube_description}],
+        output='screen'
+    )    
 
     rviz2 = Node(
         package='rviz2',
@@ -120,13 +146,14 @@ def generate_launch_description():
     return LaunchDescription([
         declare_use_gui_cmd,
         gazebo,
-        spawn_entity,
+        # spawn_entity,
+        # spawn_cube,
         robot_state_publisher,
-#        joint_state_publisher,
-#        joint_state_publisher_gui,
+        cube_publisher,
         rviz2,
-        # controller_manager,
         joint_state_broadcaster,
         joint_trajectory_controller,
-        rqt_gui
+        rqt_gui,
+
+        
     ])
