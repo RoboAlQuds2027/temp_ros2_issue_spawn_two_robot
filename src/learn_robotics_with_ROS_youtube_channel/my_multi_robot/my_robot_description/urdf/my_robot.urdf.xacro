@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include parameter definitions -->
+  <xacro:include filename="$(find my_robot_description)/urdf/parameters.xacro" />
+  
+  <!-- Include Gazebo configuration -->
+  <xacro:include filename="$(find my_robot_description)/urdf/my_robot.gazebo.xacro" />
+
+  <!-- ==================== BASE LINK (World) ==================== -->
+  <link name="world"/>
+
+  <!-- ==================== FIXED JOINT ==================== -->
+  <joint name="world_to_first_link" type="fixed">
+    <parent link="world"/>
+    <child link="first_link"/>
+  </joint>
+
+  <!-- ==================== FIRST LINK ==================== -->
+  <link name="first_link">
+    <visual>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+    </collision>
+    <xacro:inertial_section/>
+  </link>
+
+  <!-- ==================== REVOLUTE JOINT ==================== -->
+  <joint name="first_joint" type="revolute">
+    <parent link="first_link"/>
+    <child link="second_link"/>
+    <origin xyz="0 ${b} ${q}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="${joint_effort}" velocity="${joint_velocity}" lower="${joint_lower}" upper="${joint_upper}"/>
+    <dynamics damping="${joint_damping}" friction="${joint_friction}"/>
+  </joint>
+
+  <!-- ==================== SECOND LINK ==================== -->
+  <link name="second_link">
+    <visual>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+    </collision>
+    <xacro:inertial_section/>
+  </link>
+
+  <!-- ==================== ROS2 CONTROL ==================== -->
+  <ros2_control name="RobotController" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <joint name="first_joint">
+      <command_interface name="position">
+        <param name="min">${joint_lower}</param>
+        <param name="max">${joint_upper}</param>
+      </command_interface>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+</robot>
+
+

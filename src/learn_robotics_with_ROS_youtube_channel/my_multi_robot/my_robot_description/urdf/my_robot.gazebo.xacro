@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== GAZEBO ROS2 CONTROL PLUGIN ==================== -->
+  <gazebo>
+    <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system">
+      <parameters>$(find my_robot_description)/config/robot_controller.yaml</parameters>
+      <controller_manager_name>controller_manager</controller_manager_name>
+    </plugin>
+  </gazebo>
+
+  <!-- ==================== LINK PHYSICS PROPERTIES ==================== -->
+  
+  <!-- First Link Physics -->
+  <gazebo reference="first_link">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <!-- Second Link Physics -->
+  <gazebo reference="second_link">
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+</robot>
+
+

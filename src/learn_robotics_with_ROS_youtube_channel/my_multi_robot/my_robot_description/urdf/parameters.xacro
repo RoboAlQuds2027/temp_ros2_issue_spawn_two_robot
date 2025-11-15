@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== GEOMETRIC PARAMETERS ==================== -->
+  <xacro:property name="a" value="0.1" />
+  <xacro:property name="b" value="0.1" />
+  <xacro:property name="c" value="0.8" />
+
+  <!-- ==================== CALCULATED PARAMETERS ==================== -->
+  <xacro:property name="s" value="${c/2}" />
+  <xacro:property name="q" value="${c-(c/4)}" />
+  
+  <!-- ==================== MATERIAL PROPERTIES ==================== -->
+  <xacro:property name="d" value="2710" />
+  <xacro:property name="m" value="${d*a*b*c}" />
+  
+  <!-- ==================== INERTIA CALCULATIONS ==================== -->
+  <xacro:property name="ix" value="${m*(b*b+c*c)/12}" />
+  <xacro:property name="iy" value="${m*(a*a+c*c)/12}" />
+  <xacro:property name="iz" value="${m*(a*a+b*b)/12}" />
+
+  <!-- ==================== JOINT PARAMETERS ==================== -->
+  <xacro:property name="joint_effort" value="5000" />
+  <xacro:property name="joint_velocity" value="10" />
+  <xacro:property name="joint_lower" value="-1.57" />
+  <xacro:property name="joint_upper" value="1.57" />
+  <xacro:property name="joint_damping" value="1.0" />
+  <xacro:property name="joint_friction" value="1.0" />
+
+  <!-- ==================== INERTIAL MACRO ==================== -->
+  <xacro:macro name="inertial_section">
+    <inertial>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+      <mass value="${m}"/>
+      <inertia ixx="${ix}" ixy="0.0" ixz="0.0"
+               iyy="${iy}" iyz="0.0"
+               izz="${iz}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ==================== MATERIAL DEFINITIONS ==================== -->
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+  
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+
+</robot>
