@@ -16,8 +16,8 @@ def generate_launch_description():
             os.path.join(ros_gz_sim_pkg, 'launch', 'gz_sim.launch.py')
         ),
         launch_arguments={
-            'gz_args': '-r empty.sdf',
-            'on_exit_shutdown': 'true'
+            'gz_args': '-r empty.sdf'
+            # 'on_exit_shutdown': 'true'
         }.items()
     )
     

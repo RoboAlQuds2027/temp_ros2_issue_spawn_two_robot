@@ -1,23 +1,21 @@
 <?xml version="1.0"?>
 <robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- Include parameter definitions -->
-  <xacro:include filename="$(find my_robot_description)/urdf/parameters.xacro" />
+  <!-- Include external files -->
+  <xacro:include filename="$(find my_robot_description)/urdf/parameters.xacro"/>
+  <xacro:include filename="$(find my_robot_description)/urdf/my_robot.gazebo.xacro"/>
+
+  <!-- Multi-robot support: Accept robot_name as argument -->
+  <xacro:arg name="robot_name" default="robot1"/>
+  <xacro:property name="robot_ns" value="$(arg robot_name)"/>
+
+  <!-- ==================== LINKS ==================== -->
   
-  <!-- Include Gazebo configuration -->
-  <xacro:include filename="$(find my_robot_description)/urdf/my_robot.gazebo.xacro" />
+  <!-- Base link (world frame) -->
+  <link name="${robot_ns}/world"/>
 
-  <!-- ==================== BASE LINK (World) ==================== -->
-  <link name="world"/>
-
-  <!-- ==================== FIXED JOINT ==================== -->
-  <joint name="world_to_first_link" type="fixed">
-    <parent link="world"/>
-    <child link="first_link"/>
-  </joint>
-
-  <!-- ==================== FIRST LINK ==================== -->
-  <link name="first_link">
+  <!-- First link -->
+  <link name="${robot_ns}/first_link">
     <visual>
       <geometry>
         <box size="${a} ${b} ${c}"/>
@@ -34,18 +32,8 @@
     <xacro:inertial_section/>
   </link>
 
-  <!-- ==================== REVOLUTE JOINT ==================== -->
-  <joint name="first_joint" type="revolute">
-    <parent link="first_link"/>
-    <child link="second_link"/>
-    <origin xyz="0 ${b} ${q}" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <limit effort="${joint_effort}" velocity="${joint_velocity}" lower="${joint_lower}" upper="${joint_upper}"/>
-    <dynamics damping="${joint_damping}" friction="${joint_friction}"/>
-  </joint>
-
-  <!-- ==================== SECOND LINK ==================== -->
-  <link name="second_link">
+  <!-- Second link -->
+  <link name="${robot_ns}/second_link">
     <visual>
       <geometry>
         <box size="${a} ${b} ${c}"/>
@@ -62,15 +50,35 @@
     <xacro:inertial_section/>
   </link>
 
-  <!-- ==================== ROS2 CONTROL ==================== -->
+  <!-- ==================== JOINTS ==================== -->
+  
+  <!-- Fixed joint: world to first link -->
+  <joint name="${robot_ns}/world_to_first_link" type="fixed">
+    <parent link="${robot_ns}/world"/>
+    <child link="${robot_ns}/first_link"/>
+  </joint>
+              
+  <!-- Revolute joint: first link to second link -->
+    <joint name="${robot_ns}/first_joint" type="revolute">
+      <parent link="${robot_ns}/first_link"/>
+      <child link="${robot_ns}/second_link"/>
+      <origin xyz="0 ${b} ${q}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit effort="${joint_effort}" velocity="${joint_velocity}"
+              lower="${joint_lower}" upper="${joint_upper}"/>
+      <dynamics damping="${joint_damping}" friction="${joint_friction}"/>
+    </joint>
+
+  <!-- ==================== ROS 2 CONTROL ==================== -->
+  
   <ros2_control name="RobotController" type="system">
     <hardware>
       <plugin>gz_ros2_control/GazeboSimSystem</plugin>
     </hardware>
-    <joint name="first_joint">
+    <joint name="${robot_ns}/first_joint">
       <command_interface name="position">
-        <param name="min">${joint_lower}</param>
-        <param name="max">${joint_upper}</param>
+        <param name="min">-1.57</param>
+        <param name="max">1.57</param>
       </command_interface>
       <state_interface name="position"/>
       <state_interface name="velocity"/>
@@ -78,5 +86,3 @@
   </ros2_control>
 
 </robot>
-
-

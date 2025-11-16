@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<robot name="simple_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include parameter definitions -->
+  <xacro:include filename="$(find demo_control)/model/parameters.xacro" />
+  <xacro:include filename="$(find demo_control)/model/gazebo.xacro" />
+
+  <!-- World link (fixed base) -->
+  <link name="world"/>
+
+  <!-- Fixed joint connecting world to first link -->
+  <joint name="world_to_first_link" type="fixed">
+    <parent link="world"/>
+    <child link="first_link"/>
+  </joint>
+
+  <!-- First Link -->
+  <link name="first_link">
+    <visual>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+    </collision>
+    <xacro:inertial_section/>
+  </link>
+
+  <!-- Revolute Joint -->
+  <joint name="first_joint" type="revolute">
+    <parent link="first_link"/>
+    <child link="second_link"/>
+    <origin xyz="0 ${b} ${q}" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="5000" velocity="10" lower="-1.57" upper="1.57"/>
+    <dynamics damping="1.0" friction="1.0"/>
+  </joint>
+
+  <!-- Second Link -->
+  <link name="second_link">
+    <visual>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${a} ${b} ${c}"/>
+      </geometry>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+    </collision>
+    <xacro:inertial_section/>
+  </link>
+
+  <!-- ROS2 Control Hardware Interface -->
+  <ros2_control name="RobotController" type="system">
+    <hardware>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+    </hardware>
+    <joint name="first_joint">
+      <command_interface name="position">
+        <param name="min">-1.57</param>
+        <param name="max">1.57</param>
+      </command_interface>
+      <state_interface name="position"/>
+    </joint>
+  </ros2_control>
+
+</robot>

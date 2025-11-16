@@ -1,30 +1,42 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- ==================== GAZEBO ROS2 CONTROL PLUGIN ==================== -->
+  <!-- Multi-robot support: Get robot_name from parent -->
+  <xacro:arg name="robot_name" default="robot1"/>
+  <xacro:property name="robot_ns" value="$(arg robot_name)"/>
+
+  <!-- ==================== GAZEBO ROS 2 CONTROL PLUGIN ==================== -->
+  
   <gazebo>
-    <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" filename="libgz_ros2_control-system">
+    <plugin name="gz_ros2_control::GazeboSimROS2ControlPlugin" 
+            filename="gz_ros2_control-system">
       <parameters>$(find my_robot_description)/config/robot_controller.yaml</parameters>
-      <controller_manager_name>controller_manager</controller_manager_name>
+      <ros>
+        <namespace>$(arg robot_name)</namespace>
+      </ros>
     </plugin>
   </gazebo>
 
-  <!-- ==================== LINK PHYSICS PROPERTIES ==================== -->
+  <!-- Make world link static in Gazebo -->
+  <gazebo reference="${robot_ns}/world">
+    <static>true</static>
+  </gazebo>
+
+
+  <!-- ==================== LINK GAZEBO PROPERTIES ==================== -->
   
-  <!-- First Link Physics -->
-  <gazebo reference="first_link">
+  <!-- First link: friction and visual material -->
+  <gazebo reference="${robot_ns}/first_link">
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <material>Gazebo/Red</material>
   </gazebo>
 
-  <!-- Second Link Physics -->
-  <gazebo reference="second_link">
+  <!-- Second link: friction and visual material -->
+  <gazebo reference="${robot_ns}/second_link">
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <material>Gazebo/Blue</material>
   </gazebo>
 
 </robot>
-
-

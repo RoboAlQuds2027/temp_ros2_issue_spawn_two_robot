@@ -1,48 +1,67 @@
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
+from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch.actions import TimerAction
 
 
 def generate_launch_description():
+    """Launch multiple robots in Gazebo simulation."""
     
-    # Get package paths
+    # Package paths
     gazebo_pkg = FindPackageShare('my_robot_gazebo')
     
-    # Launch Gazebo world
-    gazebo_world_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
+    # Gazebo world launch
+    gazebo_world = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
             PathJoinSubstitution([
                 gazebo_pkg,
                 'launch',
                 'gazebo_world.launch.py'
             ])
-        ])
+        )
     )
     
-    # Launch Robot
-    robot_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
+    # Robot 1 spawn
+    robot1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
             PathJoinSubstitution([
                 gazebo_pkg,
                 'launch',
                 'spawn_robot.launch.py'
             ])
-        ]),
+        ),
         launch_arguments={
+            'robot_name': 'robot1',
             'x_pose': '0.0',
+            'y_pose': '0.0',
+            'z_pose': '0.5'
+        }.items()
+    )
+    
+    # Robot 2 spawn
+    robot2 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                gazebo_pkg,
+                'launch',
+                'spawn_robot.launch.py'
+            ])
+        ),
+        launch_arguments={
+            'robot_name': 'robot2',
+            'x_pose': '2.0',
             'y_pose': '0.0',
             'z_pose': '0.0'
         }.items()
     )
     
-    # Create launch description
-    ld = LaunchDescription()
-    
-    ld.add_action(gazebo_world_cmd)
-    ld.add_action(robot_cmd)
-    
-    return ld
+    # Build launch description
+    return LaunchDescription([
+        gazebo_world,
+        # how to write without TimerAction
+        robot1,
+        # TimerAction(period=5.0, actions=[robot1]),
+        # TimerAction(period=12.0, actions=[robot2]),
+    ])

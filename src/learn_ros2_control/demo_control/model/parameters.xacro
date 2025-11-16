@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Geometric parameters -->
+  <xacro:property name="a" value="0.1" />  <!-- Width -->
+  <xacro:property name="b" value="0.1" />  <!-- Depth -->
+  <xacro:property name="c" value="0.8" />  <!-- Height -->
+
+  <!-- Calculated parameters -->
+  <xacro:property name="s" value="${c/2}" />      <!-- half height -->
+  <xacro:property name="q" value="${c-(c/4)}" />   <!-- Joint displacement -->
+  
+  <!-- Material properties -->
+  <xacro:property name="d" value="2710" />       <!-- Density kg/m^3 -->
+  <xacro:property name="m" value="${d*a*b*c}" /> <!-- Mass -->
+  
+  <!-- Moments of inertia -->
+  <xacro:property name="ix" value="${m*(b*b+c*c)/12}" />
+  <xacro:property name="iy" value="${m*(a*a+c*c)/12}" />
+  <xacro:property name="iz" value="${m*(a*a+b*b)/12}" />
+
+  <!-- Inertial macro -->
+  <xacro:macro name="inertial_section">
+    <inertial>
+      <origin xyz="0 0 ${s}" rpy="0 0 0"/>
+      <mass value="${m}"/>
+      <inertia ixx="${ix}" ixy="0.0" ixz="0.0"
+               iyy="${iy}" iyz="0.0"
+               izz="${iz}"/>
+    </inertial>
+  </xacro:macro>
+
+    <!-- Color definitions -->
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+  
+  <material name="red">
+    <color rgba="1 0 0 1"/>
+  </material>
+  
+</robot>
